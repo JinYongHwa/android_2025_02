@@ -8,12 +8,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import kr.ac.mjc.ict2007261051.dto.BookLocationDto;
@@ -29,6 +31,8 @@ public class BookActivity extends AppCompatActivity {
     ImageView thumbIv;
     TextView titleTv;
     RecyclerView locationRv;
+    List<BookLocationDto> mBookLocationList=new ArrayList<>();
+    BookLocationAdapter bookLocationAdapter=new BookLocationAdapter(mBookLocationList);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +42,9 @@ public class BookActivity extends AppCompatActivity {
         thumbIv=findViewById(R.id.thumb_iv);
         titleTv=findViewById(R.id.title_tv);
         locationRv=findViewById(R.id.location_rv);
+        locationRv.setAdapter(bookLocationAdapter);
+        locationRv.setLayoutManager(new LinearLayoutManager(this));
+
         Book book= (Book) getIntent().getSerializableExtra("book");
         titleTv.setText(book.getTitle());
         Glide.with(this).load(book.getThumbUrl()).into(thumbIv);
@@ -65,9 +72,15 @@ public class BookActivity extends AppCompatActivity {
                 // JSON String -> ResponstDto2 클래스로 변환
                 ResponseDto2 responseDto=new Gson().fromJson(json,ResponseDto2.class);
                 List<BookLocationDto> bookLocationList=responseDto.getData().get("1");
-                for(BookLocationDto bookLocationDto:bookLocationList){
-                    Log.d("location",bookLocationDto.getCallNo());
-                }
+                mBookLocationList.clear();
+                mBookLocationList.addAll(bookLocationList);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bookLocationAdapter.notifyDataSetChanged();
+                    }
+                });
             }
         });
 
