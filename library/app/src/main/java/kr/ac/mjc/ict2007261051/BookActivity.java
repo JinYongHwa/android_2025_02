@@ -11,9 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.List;
 
+import kr.ac.mjc.ict2007261051.dto.BookLocationDto;
+import kr.ac.mjc.ict2007261051.dto.ResponseDto2;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -58,7 +62,12 @@ public class BookActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String json=response.body().string();
                 Log.d("json",json);
-                
+                // JSON String -> ResponstDto2 클래스로 변환
+                ResponseDto2 responseDto=new Gson().fromJson(json,ResponseDto2.class);
+                List<BookLocationDto> bookLocationList=responseDto.getData().get("1");
+                for(BookLocationDto bookLocationDto:bookLocationList){
+                    Log.d("location",bookLocationDto.getCallNo());
+                }
             }
         });
 
